@@ -102,6 +102,30 @@ The best interval in terms of average steps taken is **`r better_interval_by_ste
 
 
 ## Imputing missing values
+In this section, we need to clarify situation with missing data.
+```{r missing_values_stats}
+total_rows<-nrow(df)
+missing_rows<-sum(is.na(df$steps))
+```
+For a total of `r total_rows` rows in our dataset, we found **`r missing_rows`** 
+are missing values (`r missing_rows*100/total_rows` %)
+
+For any missing value (please note that missing value is NA while 0 is a non-missing value) we will substitute the vaue
+for the correspondant interval average for all dates.
+So we assign internally the mean through a merge and 
+```{r missing_values_management}
+#First df and df_daily_pattern are merged by interval
+#Then, steps is recalculated: if steps is NA, then avg_steps_taken. Else no change
+df_clean<-mutate(
+    merge(x=df,y=df_daily_pattern,by.x="interval",by.y="interval"),
+    steps=ifelse(is.na(steps),avg_steps_taken,steps)
+    )
+#To avoid errors, last column to be deleted
+df_clean$avg_steps_taken<-NULL
+
+summary(df_clean)
+```
+
 
 
 
