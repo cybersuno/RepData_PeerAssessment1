@@ -64,7 +64,7 @@ myplot<-ggplot(data=df_steps_per_day)+
   geom_histogram(na.rm=TRUE,binwidth=500)+
   xlab("Total steps per day")+
   ylab("Occurrences")+
-  ggtitle("Histogram: Steps per day")
+  ggtitle("Histogram: Steps per day (missing values ignored)")
 print(myplot)
 
 #for the temporary result, calculate the mean
@@ -75,7 +75,30 @@ The **mean** fot the total steps taken per day is **`r mean_steps_per_day`**
 
 
 ## What is the average daily activity pattern?
+We are calculating the average daily activity pattern, whichi is again the mean
+but considering the group on the interval, so for each one we can get the mean
+inside the interval.
+Please find below the time series for the data:
+```{r avg_daily_activity_pattern}
+#group by to prepare data
+df_daily_pattern<-df %>% 
+      group_by(interval) %>% 
+      summarise(avg_steps_taken=mean(steps,na.rm=TRUE),.groups="drop")
 
+#plot a line chart
+myplot<-ggplot(data=df_daily_pattern)+
+  aes(x=interval,y=avg_steps_taken)+
+  geom_line(na.rm=TRUE)+
+  xlab("Interval")+
+  ylab("Average steps taken")+
+  ggtitle("Average steps taken by interval (missing values ignored)")
+print(myplot)
+
+#calculation of max value: arrange the dataframe and taking the first column
+better_interval_by_steps<-arrange(df_daily_pattern,desc(avg_steps_taken))[1,1]
+```
+
+The best interval in terms of average steps taken is **`r better_interval_by_steps`**.
 
 
 ## Imputing missing values
