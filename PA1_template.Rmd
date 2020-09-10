@@ -57,18 +57,18 @@ steps taken every day.
 ```{r steps_taken_per_day}
 library(ggplot2)
 #group_by date, then sum steps
-tempdf<-df %>% group_by(date) %>% summarise(steps_per_day=sum(steps,na.rm=TRUE),.groups="drop")
+df_steps_per_day<-df %>% group_by(date) %>% summarise(steps_per_day=sum(steps,na.rm=TRUE),.groups="drop")
 #plot:
-myplot<-ggplot(data=tempdf)+
+myplot<-ggplot(data=df_steps_per_day)+
   aes(steps_per_day)+
   geom_histogram(na.rm=TRUE,binwidth=500)+
   xlab("Total steps per day")+
   ylab("Occurrences")+
-  ggtitle("Histograms: Steps per day")
+  ggtitle("Histogram: Steps per day")
 print(myplot)
 
 #for the temporary result, calculate the mean
-mean_steps_per_day<-mean(tempdf$steps_per_day, na.rm=TRUE)
+mean_steps_per_day<-mean(df_steps_per_day$steps_per_day, na.rm=TRUE)
 ```
 For this result, apply a mean
 The **mean** fot the total steps taken per day is **`r mean_steps_per_day`**
