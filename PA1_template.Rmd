@@ -7,11 +7,71 @@ output:
 
 
 ## Loading and preprocessing the data
+Data is present in a file inside the root folder for the repository: 
+*activity.zip*
+### Unzipping
+First step should be the unzipping of the file, finding then a csv file. For the
+sake of efficiency, unzipping will only happen when no csv file is present.
+```{r unzipping}
+if (file.exists("activity.zip")) {
+    if (!file.exists("activity.csv")) {
+        unzip(zipfile="activity.zip")
+    }
+}
 
+if (file.exists("activity.csv")) {
+    print("CSV File present")    
+}
+```
+
+###CSV load
+In second place, data loading in a DataFrame called df
+```{r csvread}
+df<-read.csv("activity.csv")
+summary(df)
+```
+
+###Processing
+Process data: conversion for the date and including a new weekpart column with
+the factor "weekend","weekday"
+```{r process}
+library(dplyr)
+#transform the date character into date col
+#add weekday
+df<-df %>% mutate(date=as.Date(date))
+#add weekdate
+#df[strftime(df$date2,"%w")=="0" | strftime(df$date2,"%w")=="6",]
+df$weekpart <- factor(ifelse(strftime(df$date,"%w")=="0","weekend",ifelse(strftime(df$date,"%w")=="6","weekend","weekday")))
+
+summary(df)
+```
 
 
 ## What is mean total number of steps taken per day?
+For every observation, we have the number of steps taken in the last five 
+minutes of the day. This five minutes period is the interval. 
+Then, we can use
+the column date as group-by column and apply a SUM of the indicator steps.
+With the calculation, we can plot an histogram to watch distribution over total
+steps taken every day.
+```{r steps_taken_per_day}
+library(ggplot2)
+#group_by date, then sum steps
+tempdf<-df %>% group_by(date) %>% summarise(steps_per_day=sum(steps,na.rm=TRUE),.groups="drop")
+#plot:
+myplot<-ggplot(data=tempdf)+
+  aes(steps_per_day)+
+  geom_histogram(na.rm=TRUE,binwidth=500)+
+  xlab("Total steps per day")+
+  ylab("Occurrences")+
+  ggtitle("Histograms: Steps per day")
+print(myplot)
 
+#for the temporary result, calculate the mean
+mean_steps_per_day<-mean(tempdf$steps_per_day, na.rm=TRUE)
+```
+For this result, apply a mean
+The **mean** fot the total steps taken per day is **`r mean_steps_per_day`**
 
 
 ## What is the average daily activity pattern?
